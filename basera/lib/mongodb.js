@@ -1,4 +1,14 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix local DNS resolution issues for MongoDB SRV records in development/local environments
+if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (err) {
+    console.warn('Failed to set public DNS servers:', err);
+  }
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
