@@ -74,37 +74,37 @@ export default function LandingPage() {
       <main className="flex-grow flex flex-col relative">
         
         {/* Harmonized Light-Theme Hero Section (Seamless Content Layout) */}
-        <section className="relative w-full pt-16 pb-14 px-6 max-w-5xl mx-auto text-center flex flex-col items-center gap-6 relative z-10">
+        <section className="relative w-full pt-20 pb-16 px-6 max-w-5xl mx-auto text-center flex flex-col items-center gap-6 z-10">
 
-          <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100/85 px-4 py-1.5 rounded-full shadow-[0_2px_12px_rgba(99,102,241,0.06)] backdrop-blur-md">
-            <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-800">
+          <div className="inline-flex items-center gap-2 bg-indigo-50/60 border border-indigo-100/70 px-4 py-1.5 rounded-full shadow-[0_2px_15px_rgba(99,102,241,0.05)] backdrop-blur-md">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700">
               ⚡ India&apos;s First Direct Relocation Engine
             </span>
           </div>
           
-          <h1 className="font-plus-jakarta text-5xl sm:text-7xl lg:text-8.5xl font-black tracking-tight leading-[0.98] max-w-5xl text-primary select-none">
+          <h1 className="font-plus-jakarta text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.98] max-w-5xl text-primary select-none">
             Settle in like a <span className="shimmer-text">local.</span> <br />
-            <span className="font-devanagari text-primary text-4xl sm:text-6.5xl lg:text-7.5xl font-black leading-tight block mt-1.5">
+            <span className="font-devanagari text-primary text-4xl sm:text-6xl lg:text-7xl font-black leading-tight block mt-1.5">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-500 to-rose-500 animate-text-glow font-extrabold">बिना ब्रोकर</span>, घर जैसा एहसास।
             </span>
           </h1>
 
-          <p className="text-xs.5 md:text-sm.5 text-gray-500 font-semibold max-w-2xl leading-relaxed mt-1">
+          <p className="text-sm md:text-base text-gray-500 font-semibold max-w-2xl leading-relaxed mt-1">
             Skip broker lists and fake pictures. We visit and audit every stay, map transport corridors, test regional meals, and verify helper contacts so you move with absolute confidence.
           </p>
 
           {/* Quick Search Floating Glassmorphic Bar with Action Button */}
           <div className="w-full max-w-xl mt-2 relative group z-30">
-            <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-600 to-rose-500 rounded-full blur opacity-10 group-hover:opacity-20 transition duration-300"></div>
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-600 to-rose-500 rounded-full blur opacity-10 group-hover:opacity-15 transition duration-300"></div>
             <div className="relative flex items-center w-full">
               <input 
                 type="text"
                 placeholder="Search your destination city..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/95 backdrop-blur-md border border-outline rounded-full py-4 pl-12 pr-28 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-xs.5 font-bold outline-none text-primary shadow-xl hover:shadow-2xl hover:border-indigo-300/40"
+                className="w-full bg-white/90 backdrop-blur-md border border-outline rounded-full py-4.5 pl-12 pr-28 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-semibold outline-none text-primary shadow-xl hover:shadow-2xl hover:border-indigo-300/40"
               />
-              <span className="absolute left-4.5 top-[14.5px] text-gray-400 material-symbols-outlined text-[18px]">search</span>
+              <span className="absolute left-4 top-[17px] text-gray-400 material-symbols-outlined text-[20px]">search</span>
               <button 
                 type="button"
                 onClick={() => {
@@ -113,16 +113,16 @@ export default function LandingPage() {
                     citiesSection.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="absolute right-1.5 top-1.5 bottom-1.5 bg-primary text-white px-5 rounded-full text-[9px] font-extrabold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer"
+                className="absolute right-2 top-2 bottom-2 bg-primary text-white px-6 rounded-full text-[10px] font-extrabold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer"
               >
                 Explore
-                <span className="material-symbols-outlined text-[11px] text-white">arrow_forward</span>
+                <span className="material-symbols-outlined text-[12px] text-white">arrow_forward</span>
               </button>
             </div>
           </div>
 
           {/* Active hubs indicators */}
-          <span className="text-[9px] text-indigo-600/60 font-extrabold uppercase tracking-widest mt-2 select-none">
+          <span className="text-[10px] text-indigo-600/60 font-extrabold uppercase tracking-widest mt-2 select-none">
             📍 Active Hubs: Delhi • Hyderabad • Pune
           </span>
         </section>
@@ -132,7 +132,7 @@ export default function LandingPage() {
           <div className="max-w-max-width-desktop mx-auto px-6">
             <div className="flex flex-col gap-1 text-center md:text-left mb-12">
               <h2 className="font-plus-jakarta text-3xl font-extrabold text-primary tracking-tight">Active Hubs</h2>
-              <p className="text-[10px] font-extrabold text-gray-405 uppercase tracking-widest">Select your new destination to explore listings</p>
+              <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Select your new destination to explore listings</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -181,7 +181,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <h3 className="font-plus-jakarta text-lg font-bold text-primary mb-2">Verified Stays</h3>
-                <p className="text-xs text-gray-505 font-semibold leading-relaxed">
+                <p className="text-xs text-gray-500 font-semibold leading-relaxed">
                   Broker-free properties with fully audited agreements, coordinate mapping details, and exact deposit parameters.
                 </p>
               </div>
@@ -194,7 +194,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <h3 className="font-plus-jakarta text-lg font-bold text-primary mb-2">Tiffin & Messes</h3>
-                <p className="text-xs text-gray-505 font-semibold leading-relaxed">
+                <p className="text-xs text-gray-500 font-semibold leading-relaxed">
                   Discover local home kitchens delivering regional tiffins. Free test trials and transparent subscription models.
                 </p>
               </div>
@@ -207,7 +207,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <h3 className="font-plus-jakarta text-lg font-bold text-primary mb-2">Verified Helpers</h3>
-                <p className="text-xs text-gray-550 font-semibold leading-relaxed">
+                <p className="text-xs text-gray-500 font-semibold leading-relaxed">
                   Cooks, maids, and housekeepers with background audits, standard rates, and active contact numbers.
                 </p>
               </div>
@@ -236,13 +236,13 @@ export default function LandingPage() {
             
             {/* Left side: Directory list & text */}
             <div className="w-full lg:w-5/12 flex flex-col items-start gap-5 text-left">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-150 px-4 py-1.5 rounded-xl shadow-sm">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 bg-indigo-50 border border-indigo-100 px-4 py-1.5 rounded-xl shadow-sm">
                 📍 Interactive Directory
               </span>
               <h2 className="font-plus-jakarta text-3xl font-extrabold text-primary tracking-tight">
                 Check Hub Coverage
               </h2>
-              <p className="text-xs.5 text-gray-500 font-semibold leading-relaxed">
+              <p className="text-sm text-gray-500 font-semibold leading-relaxed">
                 Hover or click on the map pins to view available relocation services, active listings count, and regional support networks.
               </p>
 
@@ -256,7 +256,7 @@ export default function LandingPage() {
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-base">{city.icon}</span>
-                      <span className="text-xs.5 font-bold text-primary group-hover:text-indigo-600 transition-colors">{city.name}</span>
+                      <span className="text-sm font-bold text-primary group-hover:text-indigo-600 transition-colors">{city.name}</span>
                     </div>
                     <span className="material-symbols-outlined text-[16px] text-gray-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all">arrow_forward</span>
                   </Link>
