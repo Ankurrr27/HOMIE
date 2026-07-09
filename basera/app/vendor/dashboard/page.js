@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
@@ -11,15 +11,7 @@ export default function VendorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchVendorListings();
-    } else if (status === 'unauthenticated') {
-      setLoading(false);
-    }
-  }, [status]);
-
-  const fetchVendorListings = async () => {
+  const fetchVendorListings = useCallback(async () => {
     try {
       // In a real application, you would hit an endpoint filtered by vendor, 
       // for this implementation we fetch the general listings and show the user's listings.
@@ -28,7 +20,7 @@ export default function VendorDashboard() {
       if (json.success) {
         // Filter by logged in vendor user ID if listing matches
         const myListings = json.data.filter(
-          item => item.vendor === session.user.id || item.vendor?._id === session.user.id
+          item => item.vendor === session?.user?.id || item.vendor?._id === session?.user?.id
         );
         setListings(myListings);
       } else {
@@ -39,7 +31,28 @@ export default function VendorDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    let active = true;
+    if (status === 'authenticated') {
+      const timer = setTimeout(() => {
+        if (active) fetchVendorListings();
+      }, 0);
+      return () => {
+        active = false;
+        clearTimeout(timer);
+      };
+    } else if (status === 'unauthenticated') {
+      const timer = setTimeout(() => {
+        if (active) setLoading(false);
+      }, 0);
+      return () => {
+        active = false;
+        clearTimeout(timer);
+      };
+    }
+  }, [status, fetchVendorListings]);
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this listing?')) return;

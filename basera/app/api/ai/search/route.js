@@ -3,8 +3,10 @@ import { SEARCH_EXTRACTION_PROMPT } from '@/prompts/search';
 import { callClaude, extractJSON } from '@/lib/anthropic';
 
 export async function POST(request) {
+  let queryText = '';
   try {
     const { query, city } = await request.json();
+    queryText = query || '';
 
     if (!query) {
       return NextResponse.json(
@@ -24,11 +26,10 @@ export async function POST(request) {
     return NextResponse.json({ success: true, filters });
   } catch (error) {
     console.error('Search API Error:', error);
-    // Graceful fallback: treat as keyword search
-    const { query } = await request.clone().json().catch(() => ({}));
+    // Graceful fallback: treat as keyword search without re-consuming stream
     return NextResponse.json({
       success: true,
-      filters: { keyword: query || '' },
+      filters: { keyword: queryText },
     });
   }
 }

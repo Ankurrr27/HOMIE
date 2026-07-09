@@ -37,10 +37,6 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false);
   const [aiTagging, setAiTagging] = useState(false);
 
-  useEffect(() => {
-    fetchMetadata();
-  }, []);
-
   const fetchMetadata = async () => {
     try {
       const [citiesRes, catsRes] = await Promise.all([
@@ -55,6 +51,13 @@ export default function CreateListing() {
       console.error('Error fetching metadata', err);
     }
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchMetadata();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];

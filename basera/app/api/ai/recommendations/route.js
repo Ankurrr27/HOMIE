@@ -29,8 +29,9 @@ export async function GET(request) {
       const topListings = await Listing.find({ isActive: true })
         .sort({ 'rating.average': -1 })
         .limit(4)
-        .populate('category', 'name icon')
+        .populate('category', 'name icon slug')
         .lean();
+
 
       return NextResponse.json({ success: true, data: topListings, type: 'top_rated' });
     }
@@ -54,7 +55,7 @@ export async function GET(request) {
       .map(([id]) => id);
 
     const recommendations = await Listing.find({ _id: { $in: topCoSaved } })
-      .populate('category', 'name icon')
+      .populate('category', 'name icon slug')
       .lean();
 
     return NextResponse.json({ success: true, data: recommendations, type: 'collaborative' });

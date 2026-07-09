@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -39,11 +39,7 @@ export default function EditListing() {
   const [uploading, setUploading] = useState(false);
   const [aiTagging, setAiTagging] = useState(false);
 
-  useEffect(() => {
-    fetchMetadataAndListing();
-  }, [id]);
-
-  const fetchMetadataAndListing = async () => {
+  const fetchMetadataAndListing = useCallback(async () => {
     try {
       const [citiesRes, catsRes, listingRes] = await Promise.all([
         fetch('/api/cities'),
@@ -99,7 +95,14 @@ export default function EditListing() {
     } finally {
       setLoadingListing(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchMetadataAndListing();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [id, fetchMetadataAndListing]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];

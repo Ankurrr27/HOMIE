@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
+import dynamic from 'next/dynamic';
+
+const GeospatialMap = dynamic(
+  () => import('@/components/listings/GeospatialMap'),
+  { ssr: false }
+);
+
 
 export default function CategoryListingsClient({ cityData, categoryData, categories = [], initialListings, subcategories }) {
   const router = useRouter();
@@ -11,16 +18,23 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
   const initialSearch = searchParams.get('search') || '';
 
   const [search, setSearch] = useState(initialSearch);
+  const [submittedSearch, setSubmittedSearch] = useState(initialSearch);
   const [listings, setListings] = useState(initialListings);
   const [maxPrice, setMaxPrice] = useState(50000);
+  const [showMap, setShowMap] = useState(false);
+  const [polygonFilter, setPolygonFilter] = useState(null);
+
+
   const [selectedCategories, setSelectedCategories] = useState([categoryData.slug]);
   const [selectedSubs, setSelectedSubs] = useState([]);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
-  const handleSearch = useCallback(async (query) => {
+  const handleSearch = useCallback(async (query, poly = null) => {
     try {
-      // Fetch all local listings for this city so everything is loaded at the start
-      const res = await fetch(`/api/listings?city=${cityData.slug}&search=${encodeURIComponent(query)}`);
+      setSubmittedSearch(query);
+      const categoriesParam = selectedCategories.join(',');
+      const res = await fetch(`/api/listings?city=${cityData.slug}&category=${categoriesParam}&search=${encodeURIComponent(query)}&polygon=${poly || ''}`);
+
       const data = await res.json();
       if (data.success) {
         setTimeout(() => {
@@ -30,12 +44,16 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
     } catch (e) {
       console.error(e);
     }
-  }, [cityData.slug]);
+  }, [cityData.slug, selectedCategories]);
 
   useEffect(() => {
-    // Fetch all listings on load
-    handleSearch(initialSearch || '');
-  }, [initialSearch, handleSearch]);
+    // Fetch all listings on load or when polygon filter updates
+    const timer = setTimeout(() => {
+      handleSearch(initialSearch || '', polygonFilter);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [initialSearch, polygonFilter, handleSearch]);
+
 
   const toggleSubcategory = (sub) => {
     setSelectedSubs(prev => 
@@ -52,7 +70,7 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
     if (item.price?.value && item.price.value > maxPrice) return false;
     if (verifiedOnly && !item.isVerified) return false;
     if (selectedSubs.length > 0 && !selectedSubs.includes(item.subcategory)) return false;
-    if (search && !item.name.toLowerCase().includes(search.toLowerCase()) && !item.description.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search !== submittedSearch && search && !item.name.toLowerCase().includes(search.toLowerCase()) && !item.description.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -222,7 +240,15 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
             <span className="text-[10px] font-bold uppercase text-gray-400 tracking-widest">
               Found {filteredListings.length} matches
             </span>
+            <button 
+              onClick={() => setShowMap(!showMap)}
+              className="flex items-center gap-1.5 px-4.5 py-2 border border-outline hover:bg-gray-50 text-[10px] font-bold uppercase rounded-full cursor-pointer transition-all shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[16px]">{showMap ? 'list' : 'map'}</span>
+              {showMap ? 'Show Cards Only' : 'Show Map Split'}
+            </button>
           </div>
+
 
           {filteredListings.length === 0 ? (
             <div className="p-16 text-center bg-white rounded-card border border-outline text-xs font-bold text-gray-400 shadow-sm flex flex-col items-center gap-3">
@@ -230,10 +256,12 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
               No listings match your criteria.
             </div>
           ) : (
-            <div className="flex flex-col gap-8">
-              {/* Featured Banner listing */}
-              {firstListing && (
-                <div className="relative overflow-hidden rounded-card aspect-[16/9] md:aspect-[21/9] border border-outline shadow-sm group">
+            <div className={`flex flex-col ${showMap ? 'lg:flex-row gap-6 items-stretch' : ''}`}>
+              <div className={`flex flex-col gap-8 ${showMap ? 'w-full lg:w-[50%] flex-shrink-0' : 'w-full'}`}>
+                {/* Featured Banner listing */}
+                {firstListing && (
+                  <div className={`relative overflow-hidden rounded-card aspect-[16/9] ${showMap ? '' : 'md:aspect-[21/9]'} border border-outline shadow-sm group`}>
+
                   <img 
                     alt={firstListing.name} 
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out" 
@@ -246,10 +274,23 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
                     FEATURED HUB
                   </div>
                   
+                  {firstListing.aiMatchScore !== undefined && (
+                    <div className="absolute top-4 right-4 bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] font-bold z-20 flex items-center gap-1 shadow-md" title={firstListing.aiMatchReason}>
+                      <span className="material-symbols-outlined text-[12px]">psychology</span>
+                      {firstListing.aiMatchScore}% AI Match
+                    </div>
+                  )}
+                  
                   <div className="absolute bottom-6 left-6 right-6 text-white z-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                       <h3 className="font-plus-jakarta text-lg md:text-xl font-bold leading-none text-white">{firstListing.name}</h3>
+                      {firstListing.aiMatchReason && (
+                        <p className="text-indigo-200 text-[10px] font-semibold italic mt-2 border-l-2 border-indigo-400 pl-2 line-clamp-1" title={firstListing.aiMatchReason}>
+                          &ldquo;{firstListing.aiMatchReason}&rdquo;
+                        </p>
+                      )}
                       <p className="text-white/80 text-[11px] font-semibold mt-2.5 flex items-center gap-1">
+
                         <span className="material-symbols-outlined text-[14px]">location_on</span>
                         {firstListing.locality}, {cityData.name}
                       </p>
@@ -267,7 +308,7 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
 
               {/* Grid of Listings */}
               {otherListings.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 ${showMap ? 'lg:grid-cols-2' : 'lg:grid-cols-3'} gap-6`}>
                   {otherListings.map(listing => (
                     <Link
                       key={listing._id}
@@ -288,10 +329,22 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
                             Verified
                           </span>
                         )}
+                        {listing.aiMatchScore !== undefined && (
+                          <span className="absolute top-3 right-3 bg-indigo-650 text-white px-2.5 py-0.5 rounded-full text-[9px] font-bold flex items-center gap-1 shadow-sm animate-pulse" title={listing.aiMatchReason}>
+                            <span className="material-symbols-outlined text-[10px]">psychology</span>
+                            {listing.aiMatchScore}% Match
+                          </span>
+                        )}
                       </div>
                       <div className="p-5">
                         <h4 className="font-bold text-xs.5 text-primary truncate leading-snug">{listing.name}</h4>
+                        {listing.aiMatchReason && (
+                          <p className="text-[10px] text-indigo-500 font-semibold italic mt-1 border-l-2 border-indigo-200 pl-2 line-clamp-1" title={listing.aiMatchReason}>
+                            &ldquo;{listing.aiMatchReason}&rdquo;
+                          </p>
+                        )}
                         <p className="text-gray-400 text-xs font-semibold mt-1 flex items-center gap-0.5">
+
                           <span className="material-symbols-outlined text-[12px] text-gray-300">location_on</span>
                           {listing.locality || 'Local area'}
                         </p>
@@ -320,8 +373,19 @@ export default function CategoryListingsClient({ cityData, categoryData, categor
                 </div>
               )}
             </div>
-          )}
-        </section>
+
+            {showMap && (
+              <div className="w-full lg:w-[50%] h-[400px] lg:h-[calc(100vh-140px)] sticky top-6 z-20 rounded-3xl overflow-hidden shadow-lg border border-outline mt-6 lg:mt-0 bg-white">
+                <GeospatialMap 
+                  listings={filteredListings} 
+                  cityData={cityData}
+                  onPolygonChange={(poly) => setPolygonFilter(poly)}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </section>
       </main>
     </div>
   );

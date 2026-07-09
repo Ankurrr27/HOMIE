@@ -38,7 +38,7 @@ export async function POST(request, { params }) {
       );
     }
 
-    const alreadySaved = user.savedListings.includes(id);
+    const alreadySaved = user.savedListings.some(item => item.toString() === id);
     if (!alreadySaved) {
       user.savedListings.push(id);
       await user.save();
@@ -83,7 +83,7 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const alreadySaved = user.savedListings.includes(id);
+    const alreadySaved = user.savedListings.some(item => item.toString() === id);
     if (alreadySaved) {
       user.savedListings.pull(id);
       await user.save();

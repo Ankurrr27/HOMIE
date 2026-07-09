@@ -78,7 +78,7 @@ export default function LandingPage() {
 
           <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100/85 px-4 py-1.5 rounded-full shadow-[0_2px_12px_rgba(99,102,241,0.06)] backdrop-blur-md">
             <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-800">
-              ⚡ India's First Direct Relocation Engine
+              ⚡ India&apos;s First Direct Relocation Engine
             </span>
           </div>
           

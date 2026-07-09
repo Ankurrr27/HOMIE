@@ -11,14 +11,6 @@ export default function SavedListingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchSavedListings();
-    } else if (status === 'unauthenticated') {
-      setLoading(false);
-    }
-  }, [status]);
-
   const fetchSavedListings = async () => {
     try {
       const res = await fetch('/api/listings/saved');
@@ -34,6 +26,28 @@ export default function SavedListingsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let active = true;
+    if (status === 'authenticated') {
+      const timer = setTimeout(() => {
+        if (active) fetchSavedListings();
+      }, 0);
+      return () => {
+        active = false;
+        clearTimeout(timer);
+      };
+    } else if (status === 'unauthenticated') {
+      const timer = setTimeout(() => {
+        if (active) setLoading(false);
+      }, 0);
+      return () => {
+        active = false;
+        clearTimeout(timer);
+      };
+    }
+  }, [status]);
+
 
   const handleUnsave = async (listingId) => {
     try {

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import AIReviewSummary from '@/components/ai/AIReviewSummary';
 import NeighbourhoodScorer from '@/components/ai/NeighbourhoodScorer';
 import RecommendedListings from '@/components/ai/RecommendedListings';
+import NegotiationChat from '@/components/listings/NegotiationChat';
+
 
 export default function ListingDetailsClient({ city, category, listing, initialReviews }) {
   const router = useRouter();
@@ -16,13 +18,10 @@ export default function ListingDetailsClient({ city, category, listing, initialR
   const [isSaved, setIsSaved] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isNegotiating, setIsNegotiating] = useState(false);
 
-  // Sync bookmark state on mount
-  useEffect(() => {
-    checkSavedStatus();
-  }, [listing._id]);
 
-  const checkSavedStatus = async () => {
+  const checkSavedStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/listings/saved');
       const json = await res.json();
@@ -32,7 +31,15 @@ export default function ListingDetailsClient({ city, category, listing, initialR
     } catch (err) {
       console.error('Error checking saved status:', err);
     }
-  };
+  }, [listing._id]);
+
+  // Sync bookmark state on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkSavedStatus();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [listing._id, checkSavedStatus]);
 
   // Bookmark toggle
   const toggleSave = async () => {
@@ -396,6 +403,15 @@ export default function ListingDetailsClient({ city, category, listing, initialR
                     <span className="material-symbols-outlined text-[16px]">chat</span>
                     WhatsApp
                   </a>
+                  {listing.price?.value && (
+                    <button
+                      onClick={() => setIsNegotiating(true)}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-full text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-98 transition-all shadow-md cursor-pointer mt-1"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">handshake</span>
+                      Negotiate Rent (AI)
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -406,6 +422,15 @@ export default function ListingDetailsClient({ city, category, listing, initialR
         {/* Recommended listings section */}
         <RecommendedListings listingId={listing._id} currentCitySlug={city} />
       </main>
+
+      {/* Interactive AI Landlord Negotiation */}
+      {isNegotiating && (
+        <NegotiationChat 
+          listing={listing} 
+          onClose={() => setIsNegotiating(false)} 
+        />
+      )}
     </div>
   );
 }
+

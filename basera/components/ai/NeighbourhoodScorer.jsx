@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 export default function NeighbourhoodScorer({ locality = 'Koramangala', cityName = 'Bengaluru', listingData = {} }) {
@@ -9,12 +9,7 @@ export default function NeighbourhoodScorer({ locality = 'Koramangala', cityName
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Auto-calculate on initial load
-    calculateScore();
-  }, [locality, cityName]);
-
-  const calculateScore = async () => {
+  const calculateScore = useCallback(async () => {
     setLoading(true);
     try {
       const userProfile = {
@@ -41,7 +36,15 @@ export default function NeighbourhoodScorer({ locality = 'Koramangala', cityName
     } finally {
       setLoading(false);
     }
-  };
+  }, [locality, cityName, listingData, profile, session]);
+
+  useEffect(() => {
+    // Auto-calculate on initial load
+    const timer = setTimeout(() => {
+      calculateScore();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [locality, cityName, calculateScore]);
 
   return (
     <div className="bg-white border border-outline rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.01)] flex flex-col gap-5">

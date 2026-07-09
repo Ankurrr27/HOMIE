@@ -38,10 +38,11 @@ export default function AISearchBar({ city = 'bengaluru', onSearchComplete }) {
           if (minPrice) params.append('minPrice', minPrice);
           if (maxPrice) params.append('maxPrice', maxPrice);
           
-          const path = category 
-            ? `/${city}/${category.toLowerCase()}`
-            : `/${city}`;
+          const validCategories = ['housing', 'food-dining', 'grocery', 'sabji-mandi', 'dairy', 'home-services', 'tiffin-mess', 'maid-cook', 'gym-fitness', 'places-to-visit', 'social-fun', 'transport'];
+          const normCategory = category ? category.toLowerCase().trim() : '';
+          const finalCategory = validCategories.includes(normCategory) ? normCategory : 'housing';
           
+          const path = `/${city}/${finalCategory}`;
           router.push(`${path}?${params.toString()}`);
         }
       }

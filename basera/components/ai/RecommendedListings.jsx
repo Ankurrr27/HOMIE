@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 export default function RecommendedListings({ listingId, currentCitySlug = 'bengaluru' }) {
@@ -8,11 +8,7 @@ export default function RecommendedListings({ listingId, currentCitySlug = 'beng
   const [recType, setRecType] = useState('top_rated');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [listingId]);
-
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     try {
       const res = await fetch(`/api/ai/recommendations?listingId=${listingId}`);
       const json = await res.json();
@@ -25,7 +21,14 @@ export default function RecommendedListings({ listingId, currentCitySlug = 'beng
     } finally {
       setLoading(false);
     }
-  };
+  }, [listingId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchRecommendations();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [listingId, fetchRecommendations]);
 
   if (loading) {
     return (
@@ -50,9 +53,10 @@ export default function RecommendedListings({ listingId, currentCitySlug = 'beng
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
         {recommendations.slice(0, 4).map(listing => (
-          <div 
+          <Link 
             key={listing._id}
-            className="bg-white rounded-xl border border-outline overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col group"
+            href={`/${currentCitySlug}/${listing.category?.slug || 'stays'}/${listing._id}`}
+            className="bg-white rounded-xl border border-outline overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer"
           >
             <div className="relative h-32 bg-gray-100 overflow-hidden">
               {listing.images?.[0] ? (
@@ -71,9 +75,9 @@ export default function RecommendedListings({ listingId, currentCitySlug = 'beng
               </span>
             </div>
 
-            <div className="p-4 flex-grow flex flex-col justify-between gap-3">
+            <div className="p-4 flex-grow flex flex-col justify-between gap-3 text-left">
               <div>
-                <h4 className="font-plus-jakarta text-xs font-bold text-primary line-clamp-1 group-hover:text-primary-variant transition-colors">
+                <h4 className="font-plus-jakarta text-xs font-bold text-primary line-clamp-1 group-hover:text-primary/80 transition-colors">
                   {listing.name}
                 </h4>
                 <p className="text-[9px] text-gray-400 font-semibold mt-0.5 truncate">
@@ -85,15 +89,12 @@ export default function RecommendedListings({ listingId, currentCitySlug = 'beng
                 <span className="text-[10px] font-extrabold text-primary">
                   {listing.price?.displayText || 'On Request'}
                 </span>
-                <Link 
-                  href={`/${currentCitySlug}/${listing.category?.slug || 'stays'}/${listing._id}`}
-                  className="text-[8px] bg-gray-50 border border-outline px-3 py-2 rounded-full font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-colors"
-                >
+                <span className="text-[8px] bg-gray-50 border border-outline px-3 py-2 rounded-full font-bold uppercase tracking-wider group-hover:bg-primary group-hover:text-white transition-colors">
                   View
-                </Link>
+                </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

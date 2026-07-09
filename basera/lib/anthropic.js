@@ -37,15 +37,11 @@ export async function callClaude(messages, systemPrompt, maxTokens = 1024) {
 }
 
 
-/**
- * Extract JSON from Claude's response (handles markdown code blocks)
- * @param {string} text - Raw text from Claude
- */
 export function extractJSON(text) {
   // Remove markdown code fences if present
   const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  // Find JSON object
-  const match = cleaned.match(/\{[\s\S]*\}/);
+  // Find JSON object or array
+  const match = cleaned.match(/[\{\[][\s\S]*[\}\]]/);
   if (!match) throw new Error('No JSON found in Claude response');
   return JSON.parse(match[0]);
 }
